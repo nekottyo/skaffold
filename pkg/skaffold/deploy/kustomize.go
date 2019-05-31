@@ -154,6 +154,10 @@ func (k *KustomizeDeployer) Cleanup(ctx context.Context, out io.Writer) error {
 func dependenciesForKustomization(dir string) ([]string, error) {
 	var deps []string
 
+	if !util.IsLocalFile("kustomization.yaml", dir) {
+		return nil, nil
+	}
+
 	path := filepath.Join(dir, "kustomization.yaml")
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {

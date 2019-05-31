@@ -282,6 +282,53 @@ func TestIsHiddenFile(t *testing.T) {
 	}
 }
 
+func TestIsWorkspaceFile(t *testing.T) {
+	tmpDir, cleanup := testutil.NewTempDir(t)
+	defer cleanup()
+
+	tmpDir.Write("file", "")
+
+	var tests = []struct {
+		description string
+		in          string
+		expected    bool
+	}{
+		{
+			description: "relative path",
+			in:          "file",
+			expected:    true,
+		},
+		{
+			description: "absolute path",
+			in:          tmpDir.Path("file"),
+			expected:    true,
+		},
+		{
+			description: "does not exists",
+			in:          "does-not-exists",
+			expected:    false,
+		},
+		{
+			description: "remote git",
+			in:          "git@example.com/example-repo",
+			expected:    false,
+		},
+		{
+			description: "remote https",
+			in:          "https://example.com/example-repo",
+			expected:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			actual := IsLocalFile(tt.in, tmpDir.Root())
+
+			testutil.CheckDeepEqual(t, tt.expected, actual)
+		})
+	}
+}
+
 func TestRemoveFromSlice(t *testing.T) {
 	testutil.CheckDeepEqual(t, []string{""}, RemoveFromSlice([]string{""}, "ANY"))
 	testutil.CheckDeepEqual(t, []string{"A", "B", "C"}, RemoveFromSlice([]string{"A", "B", "C"}, "ANY"))

@@ -281,3 +281,16 @@ func IsHiddenFile(filename string) bool {
 func hasHiddenPrefix(s string) bool {
 	return strings.HasPrefix(s, hiddenPrefix)
 }
+
+// IsLocalFile returns if file is local.
+func IsLocalFile(filename string, workingDir string) bool {
+	// Return true if its an absolute file.
+	if filepath.IsAbs(filename) {
+		return true
+	}
+	// Try joining the file with working dir and see if it exists. If no error, then the file exists.
+	if _, err := os.Stat(filepath.Join(workingDir, filename)); err == nil {
+		return true
+	}
+	return false
+}
